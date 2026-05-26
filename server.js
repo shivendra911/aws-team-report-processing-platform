@@ -16,6 +16,10 @@ app.use('/employees', employeeRoutes);
 const teamRoutes = require('./routes/teams');
 app.use('/teams', teamRoutes);
 
+// NEW: Add the Report Routes
+const reportRoutes = require('./routes/reports');
+app.use('/', reportRoutes);
+
 app.get('/health', (req, res) => {
     res.json({ status: "Server is up and running!" });
 });
