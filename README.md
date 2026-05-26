@@ -7,6 +7,7 @@ A robust backend REST API built with TypeScript/Node.js, Express, and PostgreSQL
 - **Employee Management:** Manage complete employee lifecycle and directories.
 - **Team Management:** Create and organize employees into structural teams.
 - **Report Processing:** Generate, process, and manage analytical team reports.
+- **AWS S3 Integration:** Secure, direct-to-S3 file uploads using Presigned URLs (supports dynamic file types like PDF, PNG, CSV, etc.).
 - **Scalable Architecture:** Structured with routing and controllers for maintainability.
 - **Relational Database Management:** Integrated with PostgreSQL for robust data persistence.
 
@@ -15,6 +16,7 @@ A robust backend REST API built with TypeScript/Node.js, Express, and PostgreSQL
 - **Runtime:** [Node.js](https://nodejs.org/)
 - **Framework:** [Express.js](https://expressjs.com/)
 - **Database:** [PostgreSQL](https://www.postgresql.org/) (via `pg` client)
+- **AWS SDK:** `@aws-sdk/client-s3` & `@aws-sdk/s3-request-presigner` for cloud storage.
 - **Configuration:** `dotenv` for environment variable management.
 
 ## 📂 Project Structure
@@ -62,14 +64,34 @@ Ensure you have the following installed on your local machine:
    PORT=3000
 
    # Database Configuration
-   PGUSER=your_db_user
-   PGHOST=localhost
-   PGPASSWORD=your_db_password
-   PGDATABASE=your_db_name
-   PGPORT=5432
+   DB_USER=postgres
+   DB_PASSWORD=your_super_secret_password
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_NAME=team_reports
+
+   # AWS S3 Configuration
+   AWS_REGION=eu-central-1
+   AWS_ACCESS_KEY_ID=your_access_key_here
+   AWS_SECRET_ACCESS_KEY=your_secret_key_here
+   S3_BUCKET_NAME=team-report-storage-sp
    ```
 
-4. **Start the Application:**
+4. **Database Setup:**
+   Make sure you have a `reports` table in your PostgreSQL database to store report metadata:
+   ```sql
+   CREATE TABLE reports (
+       id SERIAL PRIMARY KEY,
+       team_id INT NOT NULL,
+       uploaded_by INT NOT NULL,
+       file_name VARCHAR(255) NOT NULL,
+       s3_key VARCHAR(255) NOT NULL,
+       status VARCHAR(50) NOT NULL,
+       uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+   ```
+
+5. **Start the Application:**
    ```bash
    node server.js
    ```
@@ -78,9 +100,9 @@ Ensure you have the following installed on your local machine:
 ## 📡 API Overview
 
 The core API is split into the following modular routers:
-- `api/employees` - Endpoints for discovering and managing employee data.
-- `api/teams` - Endpoints for organizing functional and cross-functional teams.
-- `api/reports` - Endpoints for generating and processing team-specific reports.
+- `/employees` - Endpoints for discovering and managing employee data.
+- `/teams` - Endpoints for organizing functional and cross-functional teams.
+- `/upload-report` (POST) - Generates an AWS S3 presigned URL for direct secure uploads of reports and logs the metadata into the database.
 
 ## 📝 License
 
